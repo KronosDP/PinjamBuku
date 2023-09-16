@@ -1,6 +1,38 @@
-<h1>PinjamBuku Page</h1>
+{% extends 'base.html' %}
 
-<h5>Application name: </h5>
-<p>{{ name }}<p>
-<h5>Class: </h5>
-<p>{{ class }}<p>
+{% block content %}
+    <h1>PinjamBuku Page</h1>
+
+    <h5>Application name: </h5>
+    <p>{{ name }}<p>
+        
+    <h5>Class: </h5>
+    <p>{{ class }}<p>
+
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Amount</th>
+            <th>Description</th>
+        </tr>
+    
+        {% comment %} Berikut cara memperlihatkan data buku di bawah baris ini {% endcomment %}
+    
+        {% for book in Books %}
+            <tr>
+                <td>{{book.name}}</td>
+                <td>{{book.amount}}</td>
+                <td>{{book.description}}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    
+    <br />
+    
+    <a href="{% url 'main:create_book' %}">
+        <button>
+            Add New Book
+        </button>
+    </a>
+
+{% endblock content %}

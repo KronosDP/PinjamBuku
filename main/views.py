@@ -25,6 +25,10 @@ def create_book(request):
     context = {'form': form}
     return render(request, "create_book.html", context)
 
+def show_html(request):
+    KumpulanBuku = Books.objects.all()
+    return render(request, 'books.html', {'KumpulanBuku': KumpulanBuku})
+
 def show_xml(request):
     data = Books.objects.all()
     return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")

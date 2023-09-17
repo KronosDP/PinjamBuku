@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+    {% for book in KumpulanBuku %}
+    <tr>
+        <td>{{book.name}}</td>
+        <td>{{book.amount}}</td>
+        <td>{{book.description}}</td>
+    </tr>
+{% endfor %}
+</html>

@@ -37,3 +37,16 @@ Gambar view JSON by id
 ![Gambar view JSON by id](AssetReadme/jsonbyid_tugas3.png)
 Gambar view XML by id
 ![Gambar view XML by id](AssetReadme/xmlbyid_tugas3.png)
+
+# Tugas 4
+1. `UserCreationForm` adalah modul yang memudahkan kita dalam membuat formulir karena dengan adanya modul tersebut kita tidak perlu menulis ulang kode dari awal (Ingat `Don't Repeat Yourself`). Kekurangan dari `UserCreationForm` adalah Kustomisasi yang terbatas. Jadi, sulit untuk kita membuat kustomisasi yang sesuai dengan keinginan dan kasus kita yang spesifik.
+
+2. Autentikasi berfungsi untuk mengecek apakah pengguna tersebut benar-benar pengguna tersebut. Hal ini dicek dengan cara pengecekan kredensial pengguna dengan yang dimasukkan. Sedangkan, otorisasi mengatur hak akses dan izin pengguna. Hak akses dan izin ini contohnya seperti membaca, menulis, atau menghapus data. Selain itu, contohnya adalah bisa tidaknya seseorang masuk ke dalam suatu laman tertentu. 
+
+Keduanya penting karena pertama, kita harus memastikan apakah seseorang benar merupakan orang tersebut dan akses apa yang dia miliki. Hal ini akan sangat berpengaruh terhadap keamanan. Selain itu, privasi pengguna juga dapat dipengaruhi oleh kedua hal tersebut.
+
+3. `Cookies` menyimpan informasi di browser `client`. Tujuan penggunaannya adalah untuk autentikasi, _user tracking, dan menyimpan preferensi user. Pada Django, Cookies menggunakan dictionary. Untuk mengelola data sesi pengguna, ketika login, kita akan melakukan `set_cookie` untuk melakukan set pada cookie. Lalu, ketika pengguna ingin logout, digunakanlah `delete_cookie` supaya terhapus.
+
+4. Ada beberapa mitos tentang cookies yang perlu kita perhatikan. Mitos pertama adalah cookies bisa menghapus data. Pernyataan itu sebenarnya benar tapi _misleading_. Sebenarnya, cookies hanya dapat menghapus data, bukan potongan kode program. Data yang dihapus juga merupakan data yang hanya ingin diubah cookies saja, bukan data-data lain yang berada pada komputer kita. Mitos lain yang perlu diperhatikan juga adalah cookies adalah spyware. Ini salah karena cookies tidak bisa menghapus atau membaca informasi dari komputer user. Yang perlu diwaspadai adalah Cookie/Session Poisoning, dimana tujuannya adalah untuk  memodifikasi data cookies/session untuk mengubah autorisasi yang didapatkan.
+
+5. Pertama, saya melakukan import untuk segala hal yang saya ingin lakukan. Pada views yang terletak pada main, saya membuat fungsi register, login, dan logout. Tujuan dari fungsi-fungsi tersebut sama dengan namanya. Kemudian, jika register dan login terpilih, maka mereka akan menampilkan html register maupun login. Jika logout yang dipilih maka logout terjadi dan session cookies akan dihapus. Kemudian, saya menambahkan ```@login_required(login_url='/login')``` supaya halaman login halaman main hanya dapat dimasuki oleh orang yang memiliki akun. Terakhir, saya menyambungkan Model `Books` dengan user. Hal ini perlu dilakukan agar yang muncul adalah buku spesifik milik orang yang spesifik. 

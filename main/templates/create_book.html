@@ -1,19 +1,42 @@
-{% extends 'base.html' %} 
+{% extends 'base.html' %}
+<head>
+    <style>
+        .container {
+          max-width: 960px;
+          margin: 0 auto;
+        }
+        
+        table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        
+        
+        input {
+          padding: 5px;
+          font-size: 16px;
+          border: 1px solid #ccc;
+        }
+        
+        input[type="submit"] {
+          background-color: #007bff;
+          color: #fff;
+          border-color: #007bff;
+        }
+        </style>
+</head>
 
 {% block content %}
 <h1>Add New Book</h1>
 
-<form method="POST">
-    {% csrf_token %}
-    <table>
-        {{ form.as_table }}
-        <tr>
-            <td></td>
-            <td>
-                <input type="submit" value="Add Book"/>
-            </td>
-        </tr>
-    </table>
+<form method="POST" class="container">
+  {% csrf_token %}
+  <table class="table">
+    {{ form.as_table }}
+  </table>
+  <div class="text-center">
+    <input type="submit" value="Add Book" class="btn btn-primary"/>
+  </div>
 </form>
 
 {% endblock %}

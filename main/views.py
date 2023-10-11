@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound, JsonResponse
 from main.forms import BooksForm
 from django.urls import reverse
 from main.models import Books
@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 
 import datetime
+
 
 # Create your views here.
 @login_required(login_url='/login')
@@ -116,20 +117,26 @@ def get_product_json(request):
     Books_items = Books.objects.filter(user=request.user)
     return HttpResponse(serializers.serialize("json", Books_items))
 
-
+@csrf_exempt
 def add_product_ajax(request):
     if request.method == 'POST':
         name = request.POST.get("name")
-        price = request.POST.get("amount")
+        amount = request.POST.get("amount")
         description = request.POST.get("description")
         user = request.user
 
-        new_product = Books(name=name, price=price, description=description, user=user)
+        new_product = Books(name=name, amount=amount, description=description, user=user)
         new_product.save()
 
         return HttpResponse(b"CREATED", status=201)
 
     return HttpResponseNotFound()
 
+@csrf_exempt
+def delete_product_ajax(request):
+    if request.method == 'POST':
+        id = request.POST.get("id")
+        Books.objects.filter(pk=id).delete()
+        return HttpResponse(b"Deleted", status=200)
 
-
+    return HttpResponseNotFound()

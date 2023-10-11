@@ -1,7 +1,9 @@
 {% extends 'base.html' %} {% block content %}
+
+<body>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">PinjamBuku Page</a>
+        <a class="navbar-brand" href="#">Pinjam<span>Buku</span> Page</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -18,13 +20,23 @@
 </nav>
 
 
-<table id="product_table"></table>
+{% for book in Books %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">{{ book.name }}</h5>
+        <p class="card-text"><strong>Amount:</strong> {{ book.amount }}</p>
+        <p class="card-text"><strong>Description:</strong> {{ book.description }}</p>
+        <a href="{% url 'main:delete' book.pk %}" class="btn btn-danger btn-sm">Delete</a>
+    </div>
+</div>
+{% endfor %}
+
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Product</h1>
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Book</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -35,8 +47,8 @@
                         <input type="text" class="form-control" id="name" name="name"></input>
                     </div>
                     <div class="mb-3">
-                        <label for="price" class="col-form-label">Price:</label>
-                        <input type="number" class="form-control" id="price" name="price"></input>
+                        <label for="amount" class="col-form-label">Amount:</label>
+                        <input type="number" class="form-control" id="amount" name="amount"></input>
                     </div>
                     <div class="mb-3">
                         <label for="description" class="col-form-label">Description:</label>
@@ -46,12 +58,12 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="button_add" data-bs-dismiss="modal">Add Product</button>
+                <button type="button" class="btn btn-primary" id="button_add" data-bs-dismiss="modal" onclick="addProduct">Add Book</button>
             </div>
         </div>
     </div>
 </div>
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Add Product by AJAX</button>
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Add New Book</button>
 
 
 <br />>
@@ -69,40 +81,61 @@
     <h5>Last Login Session: {{ last_login }}</h5>
 </div>
 
-<script>
-    async function getProducts() {
-        return fetch("{% url 'main:get_product_json' %}").then((res) => res.json())
-    }
-    async function refreshProducts() {
-        document.getElementById("product_table").innerHTML = ""
-        const products = await getProducts()
-        let htmlString = `<tr>
-            <th>Name</th>
-            <th>Amount</th>
-            <th>Description</th>
-        </tr>`
-        products.forEach((item) => {
-            htmlString += `\n<tr>
-            <td>${item.fields.name}</td>
-            <td>${item.fields.amount}</td>
-            <td>${item.fields.description}</td>
-        </tr>` 
-        })
-        
-        document.getElementById("product_table").innerHTML = htmlString
-    }
-
+<script> 
+async function getProducts() {
+    return fetch("{% url 'main:get_product_json' %}").then((res) => res.json())
+}
+async function refreshProducts() {
+    document.getElementById("product_cards").innerHTML = "";
+    const products = await getProducts();
+    let htmlString = "";
+    products.forEach((item) => {
+        htmlString += `
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">${item.fields.name}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">${item.fields.amount}</h6>
+                    <p class="card-text">${item.fields.description}</p>
+                    <button class="btn btn-danger" onclick="deleteBook('${item.id}')">Delete</button>
+                </div>
+            </div>
+        `;
+    });
+    document.getElementById("product_cards").innerHTML = htmlString;
+}
+window.onload = function(){
     refreshProducts()
-    function addProduct() {
+}
+
+
+
+function addProduct() {
         fetch("{% url 'main:add_product_ajax' %}", {
             method: "POST",
             body: new FormData(document.querySelector('#form'))
         }).then(refreshProducts)
-
         document.getElementById("form").reset()
         return false
     }
-    document.getElementById("button_add").onclick = addProduct
+document.getElementById("button_add").onclick = addProduct
+
+function deleteBook(bookId) {
+  $.ajax({
+    url: '/delete_product_ajax/',
+    type: 'POST',
+    data: {
+      'book_id': bookId,
+      'csrfmiddlewaretoken': '{{ csrf_token }}'
+    },
+    success: function(response) {
+      $('#book-' + bookId).remove();
+    },
+    error: function(xhr, status, error) {
+      console.error(xhr.responseText);
+    }
+  });
+}
 </script>
+</body>
 
 {% endblock content %}

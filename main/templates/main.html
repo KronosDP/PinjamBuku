@@ -20,16 +20,7 @@
 </nav>
 
 
-{% for book in Books %}
-<div class="card mb-3">
-    <div class="card-body">
-        <h5 class="card-title">{{ book.name }}</h5>
-        <p class="card-text"><strong>Amount:</strong> {{ book.amount }}</p>
-        <p class="card-text"><strong>Description:</strong> {{ book.description }}</p>
-        <a href="{% url 'main:delete' book.pk %}" class="btn btn-danger btn-sm">Delete</a>
-    </div>
-</div>
-{% endfor %}
+<div id="product_cards"></div>
 
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -58,7 +49,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="button_add" data-bs-dismiss="modal" onclick="addProduct">Add Book</button>
+                <button type="button" class="btn btn-primary" id="button_add" data-bs-dismiss="modal">Add Book</button>
             </div>
         </div>
     </div>
@@ -69,9 +60,9 @@
 <br />>
 
 <div class="button-container text-center">
-    <a href="{% url 'main:create_book' %}" class="btn btn-primary btn-sm">
+    <!-- <a href="{% url 'main:create_book' %}" class="btn btn-primary btn-sm">
         Add New Book
-    </a>
+    </a> -->
     <a href="{% url 'main:logout' %}" class="btn btn-danger btn-sm"> Logout </a>
 </div>
 
@@ -86,9 +77,9 @@ async function getProducts() {
     return fetch("{% url 'main:get_product_json' %}").then((res) => res.json())
 }
 async function refreshProducts() {
-    document.getElementById("product_cards").innerHTML = "";
+    // document.getElementById("product_cards").innerHTML = '';
     const products = await getProducts();
-    let htmlString = "";
+    let htmlString = ''
     products.forEach((item) => {
         htmlString += `
             <div class="card">
@@ -96,7 +87,7 @@ async function refreshProducts() {
                     <h5 class="card-title">${item.fields.name}</h5>
                     <h6 class="card-subtitle mb-2 text-muted">${item.fields.amount}</h6>
                     <p class="card-text">${item.fields.description}</p>
-                    <button class="btn btn-danger" onclick="deleteBook('${item.id}')">Delete</button>
+                    <button class="btn btn-danger" onclick="deleteBook('${item.pk}')">Delete</button>
                 </div>
             </div>
         `;
@@ -107,10 +98,8 @@ window.onload = function(){
     refreshProducts()
 }
 
-
-
-function addProduct() {
-        fetch("{% url 'main:add_product_ajax' %}", {
+async function addProduct() {
+        await fetch("{% url 'main:add_product_ajax' %}", {
             method: "POST",
             body: new FormData(document.querySelector('#form'))
         }).then(refreshProducts)
@@ -119,21 +108,14 @@ function addProduct() {
     }
 document.getElementById("button_add").onclick = addProduct
 
-function deleteBook(bookId) {
-  $.ajax({
-    url: '/delete_product_ajax/',
-    type: 'POST',
-    data: {
-      'book_id': bookId,
-      'csrfmiddlewaretoken': '{{ csrf_token }}'
-    },
-    success: function(response) {
-      $('#book-' + bookId).remove();
-    },
-    error: function(xhr, status, error) {
-      console.error(xhr.responseText);
-    }
-  });
+function deleteBook(bookId){
+    const formData = new FormData()
+    formData.append('id', bookId)
+    fetch("{% url 'main:delete_product_ajax' %}", {
+        method: "POST",
+        body: formData
+    }).then(refreshProducts)
+    return false
 }
 </script>
 </body>

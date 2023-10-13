@@ -61,3 +61,112 @@ Keduanya penting karena pertama, kita harus memastikan apakah seseorang benar me
 4. Tailwind memberikan kelas yang dapat kita gunakan untuk membuat komponen yang kita inginkan. Tailwind adalah kelas utilitas. Kelas-kelas tersebut dapat digunakan untuk membuat desain yang sesuai dengan kebutuhan. Di lain sisi, boostrap memiliki gaya yang sudah dapat langsung kita gunakan. Kita bisa langsung menggunakannya dengan mengetik bagaimana kita ingin elemen tersebut tampil. Kita dapat membaca dokumentasinya dan mengimplementasikannya. Kemudian, ini langsung bisa tampil.
 
 5. Pada dasarnya saya membuat fungsi baru pada views yaitu delete dan edit. Kemudian supaya dia bisa ada, saya menambahkannya pada url. Lalu, saya menghias html yang saya miliki. Saya menggunakan boostrap maupun css untuk menghias tampilan laman saya. 
+
+# Tugas 6
+1. Asynchronus programming berarti proses berjalannya program bisa berlangsung bersamaan. Sedangkan, synchronous programming berarti suatu perintah yang perlu menunggu proses lain selesai terlebih dahulu
+2. Alur eksekusi program perlu menunggu suatu _event_ untuk dapat terjadi. Event ini kemudian memicu respons yang perlu kita buat program kita untuk melakukan suatu hal yang kita inginkan jika suatu _event_ terjadi.
+3. Kita perlu membuat _event handler_ yang menangani _event_ yang dibuat user. Kemudian, kita membuat _callback function_ untuk menangani respons dari server setelah permintaan selesai. 
+4. Fetch API menggunakan native javascript. Ini berarti kita membuat sendiri hal yang kita inginkan. Selain itu, karena fetch API tidak menggunakan _library external_, dapat dikatakan fetch API lebih ringan. Pada lain sisi, _jQuery_ merupakan sebuah _library external_, karena itu, _jQuery_ dapat dikatakan lebih cepat untuk melakukan pemograman. Menurut saya, saya akan lebih memilih fetch API. Hal ini karena saya belum terbiasa dengan _jQuery_. Jika saya sudah terbiasa dengan pemograman web, saya rasa saya akan sering menggunakan _jQuery_ karena saya bisa mengembangkan web secara lebih cepat.
+5. Pada dasarnya saya menambahkan beberapa kode pada `main.html`, `views.py`, dan `urls.py`. Saya menggunakan Ajax pada tugas ini, oleh karena itu saya perlu menambah kode di `main.html`. 
+```html
+<div id="product_cards"></div>
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Book</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form" onsubmit="return false;">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="name" class="col-form-label">Name:</label>
+                        <input type="text" class="form-control" id="name" name="name"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amount" class="col-form-label">Amount:</label>
+                        <input type="number" class="form-control" id="amount" name="amount"></input>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="col-form-label">Description:</label>
+                        <textarea class="form-control" id="description" name="description"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="button_add" data-bs-dismiss="modal">Add Book</button>
+            </div>
+        </div>
+    </div>
+</div>
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Add New Book</button>
+```
+
+Selain itu saya juga menaambahkan kode pada bagian bawah `main.html`
+
+```js
+<script> 
+async function getProducts() {
+    return fetch("{% url 'main:get_product_json' %}").then((res) => res.json())
+}
+async function refreshProducts() {
+    // document.getElementById("product_cards").innerHTML = '';
+    const products = await getProducts();
+    let htmlString = ''
+    products.forEach((item) => {
+        htmlString += `
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Book Name: ${item.fields.name}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Amount: ${item.fields.amount}</h6>
+                    <p class="card-text">Description: ${item.fields.description}</p>
+                    <button class="btn btn-danger" onclick="deleteBook('${item.pk}')">Delete</button>
+                </div>
+            </div>
+        `;
+    });
+    document.getElementById("product_cards").innerHTML = htmlString;
+}
+window.onload = function(){
+    refreshProducts()
+}
+
+async function addProduct() {
+        await fetch("{% url 'main:add_product_ajax' %}", {
+            method: "POST",
+            body: new FormData(document.querySelector('#form'))
+        }).then(refreshProducts)
+        document.getElementById("form").reset()
+        return false
+    }
+document.getElementById("button_add").onclick = addProduct
+
+function deleteBook(bookId){
+    const formData = new FormData()
+    formData.append('id', bookId)
+    fetch("{% url 'main:delete_product_ajax' %}", {
+        method: "POST",
+        body: formData
+    }).then(refreshProducts)
+    return false
+}
+</script>
+```
+
+Perhatikan bahwa saya membuat fungsi `deleteBook`. Hal ini untuk menghapus id buku spesifik yang ada pada tiap baris. Kemudian saya membuat fungsi delete pada `views.py`. Fungsi tersebut adalah sebagai berikut:
+
+```py
+def delete_product_ajax(request):
+    if request.method == 'POST':
+        id = request.POST.get("id")
+        Books.objects.filter(pk=id).delete()
+        return HttpResponse(b"Deleted", status=200)
+
+    return HttpResponseNotFound()
+```
+
+Terakhir, saya juga menambahkan delete_product_ajax pada `urls.py`.

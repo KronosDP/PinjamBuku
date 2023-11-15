@@ -77,6 +77,7 @@ async function getProducts() {
     return fetch("{% url 'main:get_product_json' %}").then((res) => res.json())
 }
 async function refreshProducts() {
+    console.log("masuk refresh product")
     // document.getElementById("product_cards").innerHTML = '';
     const products = await getProducts();
     let htmlString = ''
@@ -99,6 +100,7 @@ window.onload = function(){
 }
 
 async function addProduct() {
+    console.log("masuk add product")
         await fetch("{% url 'main:add_product_ajax' %}", {
             method: "POST",
             body: new FormData(document.querySelector('#form'))
